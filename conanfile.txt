@@ -1,0 +1,20 @@
+[requires]
+h5cpp/0.5.2@ess-dmsc/stable
+
+[generators]
+cmake
+cmake_find_package
+virtualbuildenv
+virtualrunenv
+
+[options]
+hdf5/*:shared=True
+h5cpp/*:with_boost=False
+
+[imports]
+., *.dylib* -> ./lib @ keep_path=False
+., *.so* -> ./lib @ keep_path=False
+., LICENSE* -> ./licenses @ folder=True, ignore_case=True
+., *.dll -> ./bin @ keep_path=False
+., *.a* -> ./lib @ keep_path=False
+., *.lib -> ./bin @ keep_path=False
