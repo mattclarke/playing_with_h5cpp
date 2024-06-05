@@ -78,6 +78,15 @@ int main() {
         dataset.write(data, data_type, dataspace);
     }
 
+    // Write a fixed size 1-D array of uint8s
+    {
+        std::vector<uint8_t> data {1, 2, 3, 4, 5, 6};
+        auto const dataspace = hdf5::dataspace::Simple({6});
+        auto const data_type = hdf5::datatype::create<uint8_t>();
+        auto dataset = root_group.create_dataset("fixed_1d_uint8", data_type, dataspace);
+        dataset.write(data, data_type, dataspace);
+    }
+
     // Write a variable size 1-D array of ints
     // Requires a chunked dataset
     {
@@ -101,6 +110,27 @@ int main() {
         auto const data_type = hdf5::datatype::create<int32_t>();
         auto dataset = root_group.create_dataset("fixed_2d", data_type, dataspace);
         dataset.write(data, data_type, dataspace);
+    }
+
+    // Write a variable size 2-D array of ints
+    {
+        std::vector<int32_t> data {1, 2, 3};
+        auto const dataspace = hdf5::dataspace::Simple({0, 0}, {hdf5::dataspace::Simple::unlimited, hdf5::dataspace::Simple::unlimited});
+        auto const data_type = hdf5::datatype::create<int32_t>();
+        auto dataset = hdf5::node::ChunkedDataset(file.root(), hdf5::Path("stream_2d"), data_type, dataspace, {1024, 1024});
+
+        dataset.extent(0, 1);
+        dataset.extent(1, 3);
+        dataset.write(data, hdf5::dataspace::Hyperslab{{0, 0}, {1, 3}});
+
+        dataset.extent(0, 1);
+        dataset.write(data, hdf5::dataspace::Hyperslab{{1, 0}, {1, 3}});
+
+        // Increase the number of columns
+        dataset.extent(0, 1);
+        dataset.extent(1, 1);
+        std::vector<int32_t> data2 {1, 2, 3, 4};
+        dataset.write(data2, hdf5::dataspace::Hyperslab{{2, 0}, {1, 4}});
     }
 
     // Write a series of fixed size 2-D array of ints (e.g. an image stream)
